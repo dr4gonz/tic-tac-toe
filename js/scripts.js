@@ -2,6 +2,7 @@
 var boardArray = [];
 var isGameActive = false;
 var turn;
+var computerPlayer = "O";
 var getSpace = function (x, y) {
   return  boardArray[(y*3)+x];
 };
@@ -9,10 +10,12 @@ var getPieceAtSpace = function(x,y) {
   return getSpace(x,y).occupiedBy;
 }
 var gameStatus = "Player X to move";
+
+var checkTurn = function() {
+  if (turn%2 === 0) return "X";
+  else return "O";
+}
 //Constructors
-Player = function(piece) {
-  this.piece = piece;
-};
 
 Space = function(x, y) {
   this.x = x;
@@ -22,14 +25,15 @@ Space = function(x, y) {
 };
 
 Piece = function(turn) {
-  if (turn%2 === 0) this.type = "X";
-  else this.type = "O";
+  this.type=checkTurn();
 };
 
 Game = function() {
   boardArray = [];
   isGameActive = true;
   turn = 0;
+  // this.xHuman = true;
+  // this.oHuman = true;
   for (var iX = 0 ; iX < 3; iX++){
     for (var iY = 0 ; iY < 3; iY++){
       var gameSpace = new Space(iX,iY);
@@ -59,7 +63,7 @@ Game.prototype.isLegal = function (x, y) {
   }
 };
 
-Game.prototype.isOver = function (x, y, type) {
+Game.prototype.checkGameStatus = function (x, y, type) {
   //check for diagonal win conditions
   if (x === y) {
     if ((getPieceAtSpace(0,0) === type) && (getPieceAtSpace(1,1) === type) && (getPieceAtSpace(2,2) === type)) {
@@ -87,12 +91,21 @@ Game.prototype.isOver = function (x, y, type) {
     return true;
   } else {
     turn++;
-    if ((turn%2)===0) {
-      gameStatus = "Player X to move";
-    } else gameStatus = "Player O to move";
+    gameStatus = "Player "+checkTurn()+" to move";
     return false;
   }
 };
+
+Game.prototype.randomlyPlace = function () {
+  debugger;
+  var x = Math.floor((Math.random() * 3));
+  var y = Math.floor((Math.random() * 3));
+  if (this.isLegal(x,y)) {
+    this.placePiece(x,y);
+    console.log(x+","+y);
+    return [x,y];
+  } else return this.randomlyPlace();
+}
 
 
 //UI Logic
@@ -111,7 +124,7 @@ var updateStatus = function() {
   $("#game-status h4").text(gameStatus)
 };
 
-var startNewGame = function() {
+var playGame = function() {
   updateStatus();
   var newGame = new Game();
   drawBoard();
@@ -122,18 +135,24 @@ var startNewGame = function() {
       var yIn = parseInt(this.id[1]);
       if (newGame.placePiece(xIn,yIn)) {
         $("#"+this.id).text(getPieceAtSpace(xIn,yIn));
-        newGame.isOver(xIn,yIn,getPieceAtSpace(xIn,yIn));
+        newGame.checkGameStatus(xIn,yIn,getPieceAtSpace(xIn,yIn));
         updateStatus();
+        if (computerPlayer===checkTurn()) {
+          var compMove = newGame.randomlyPlace();
+          $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
+          newGame.checkGameStatus(compMove[0],compMove[1],getPieceAtSpace(compMove[0],compMove[1]));
+          updateStatus();
+        }
       }
     }
   });
 };
 
 $(document).ready(function(){
-  startNewGame();
+  playGame();
 
   $("#new-game").click(function() {
-    startNewGame();
+    playGame();
   });
 
 });
