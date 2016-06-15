@@ -2,7 +2,7 @@
 var boardArray = [];
 var isGameActive = false;
 var turn;
-var computerPlayer = "O";
+var computerPlayer;
 var getSpace = function (x, y) {
   return  boardArray[(y*3)+x];
 };
@@ -97,7 +97,7 @@ Game.prototype.checkGameStatus = function (x, y, type) {
 };
 
 Game.prototype.randomlyPlace = function () {
-  debugger;
+  // debugger;
   var x = Math.floor((Math.random() * 3));
   var y = Math.floor((Math.random() * 3));
   if (this.isLegal(x,y)) {
@@ -152,7 +152,14 @@ $(document).ready(function(){
   playGame();
 
   $("#new-game").click(function() {
+    var opponent = $("#choose-opponent").val();
+    if (opponent === "Computer") {
+      computerPlayer = "O";
+    } else {
+      computerPlayer = undefined;
+    }
     playGame();
+
   });
 
 });
