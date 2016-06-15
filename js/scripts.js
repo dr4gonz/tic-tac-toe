@@ -39,9 +39,10 @@ Game.prototype.placePiece = function(x, y) {
     getSpace(x,y).isOccupied = true;
     var piece = new Piece(turn);
     getSpace(x,y).occupiedBy = piece.type;
-    this.isWon(x,y,piece.type);
+    return true;
   } else {
     alert("Illegal Move");
+    return false;
   }
 
 };
@@ -77,3 +78,15 @@ Game.prototype.isWon = function (x, y,type) {
   }
 };
 //UI Logic
+$(document).ready(function(){
+  var newGame = new Game();
+  $("td").click(function(){
+    var xIn = parseInt(this.id[0]);
+    var yIn = parseInt(this.id[1]);
+    if (newGame.placePiece(xIn,yIn)) {
+      $("#"+this.id).text(getSpace(xIn,yIn).occupiedBy);
+      newGame.isWon(xIn,yIn,getSpace(xIn,yIn).occupiedBy);
+    }
+
+  });
+});
