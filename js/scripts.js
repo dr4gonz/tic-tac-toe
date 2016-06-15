@@ -90,10 +90,11 @@ var drawBoard = function() {
   }
 };
 
-$(document).ready(function(){
+var startNewGame = function() {
   var newGame = new Game();
   drawBoard();
   $("td").click(function(){
+    console.log("click");
     var xIn = parseInt(this.id[0]);
     var yIn = parseInt(this.id[1]);
     if (newGame.placePiece(xIn,yIn)) {
@@ -101,8 +102,13 @@ $(document).ready(function(){
       newGame.isWon(xIn,yIn,getSpace(xIn,yIn).occupiedBy);
     }
   });
+}
+
+$(document).ready(function(){
+  startNewGame();
+
   $("#new-game").click(function() {
-    newGame = new Game();
+    startNewGame();
   });
 
 });
