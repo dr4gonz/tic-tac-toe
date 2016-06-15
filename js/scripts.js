@@ -2,6 +2,9 @@
 var boardArray = [];
 var isGameActive = false;
 var turn;
+var getSpaceIndex = function (x, y) {
+  return  boardArray[(y*3)+x];
+}
 //Constructors
 Player = function(piece) {
   this.piece = piece;
@@ -32,10 +35,22 @@ Game = function() {
 }
 //Game Logic
 Game.prototype.placePiece = function(x, y) {
-  boardArray[(y*3)+x].isOccupied = true;
-  var piece = new Piece(turn);
-  boardArray[(y*3)+x].occupiedBy = piece.type;
-  turn++;
-}
+  if (this.isLegal(x,y)) {
+    getSpaceIndex(x,y).isOccupied = true;
+    var piece = new Piece(turn);
+    getSpaceIndex(x,y).occupiedBy = piece.type;
+    turn++;
+  } else {
+    alert("Illegal Move");
+  }
 
+};
+
+Game.prototype.isLegal = function (x, y) {
+  if (getSpaceIndex(x,y).isOccupied) {
+    return false;
+  } else {
+    return true;
+  }
+}
 //UI Logic
