@@ -4,23 +4,23 @@ var isGameActive = false;
 var turn;
 var getSpace = function (x, y) {
   return  boardArray[(y*3)+x];
-}
+};
 //Constructors
 Player = function(piece) {
   this.piece = piece;
-}
+};
 
 Space = function(x, y) {
   this.x = x;
   this.y = y;
   this.isOccupied = false;
   this.occupiedBy = "";
-}
+};
 
 Piece = function(turn) {
   if (turn%2 === 0) this.type = "X";
   else this.type = "O";
-}
+};
 
 Game = function() {
   boardArray = [];
@@ -32,8 +32,7 @@ Game = function() {
       boardArray.push(gameSpace);
     }
   }
-
-}
+};
 //Game Logic
 Game.prototype.placePiece = function(x, y) {
   if (this.isLegal(x,y)) {
@@ -56,28 +55,40 @@ Game.prototype.isLegal = function (x, y) {
   }
 };
 
-Game.prototype.isWon = function (x, y,type) {
+Game.prototype.isOver = function (x, y, type) {
   //check for diagonal win conditions
   if (x === y) {
     if ((getSpace(0,0).occupiedBy === type) && (getSpace(1,1).occupiedBy === type) && (getSpace(2,2).occupiedBy === type)) {
       alert("Player "+type+" wins!");
+      isGameActive=false;
       return true;
     }
   } else if (x + y === 2) {
     if ((getSpace(2,0).occupiedBy === type) && (getSpace(1,1).occupiedBy === type) && (getSpace(0,2).occupiedBy === type)) {
       alert("Player "+type+" wins!");
+      isGameActive=false;
       return true;
     }
   }
   //check for horizontal/vertical win conditions
   if (((getSpace(x,0).occupiedBy===type)&&(getSpace(x,1).occupiedBy===type)&&(getSpace(x,2).occupiedBy===type)) || ((getSpace(0,y).occupiedBy===type)&&(getSpace(1,y).occupiedBy===type)&&(getSpace(2,y).occupiedBy===type))) {
     alert("Player "+type+" wins!");
+    isGameActive=false;
     return true;
-  } else {
+  }
+  //check for draw
+  if (turn===8) {
+    alert("The game ended in a draw.");
+    isGameActive=false;
+    return true;
+  }
+  else {
     turn++;
     return false;
   }
 };
+
+
 //UI Logic
 var drawBoard = function() {
   $("#game-board table").remove();
@@ -94,15 +105,17 @@ var startNewGame = function() {
   var newGame = new Game();
   drawBoard();
   $("td").click(function(){
-    console.log("click");
-    var xIn = parseInt(this.id[0]);
-    var yIn = parseInt(this.id[1]);
-    if (newGame.placePiece(xIn,yIn)) {
-      $("#"+this.id).text(getSpace(xIn,yIn).occupiedBy);
-      newGame.isWon(xIn,yIn,getSpace(xIn,yIn).occupiedBy);
+    if (isGameActive) {
+      console.log("click");
+      var xIn = parseInt(this.id[0]);
+      var yIn = parseInt(this.id[1]);
+      if (newGame.placePiece(xIn,yIn)) {
+        $("#"+this.id).text(getSpace(xIn,yIn).occupiedBy);
+        newGame.isOver(xIn,yIn,getSpace(xIn,yIn).occupiedBy);
+      }
     }
   });
-}
+};
 
 $(document).ready(function(){
   startNewGame();
