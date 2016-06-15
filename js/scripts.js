@@ -103,14 +103,13 @@ Game.prototype.randomlyPlace = function () {
   var y = Math.floor((Math.random() * 3));
   if (this.isLegal(x,y)) {
     this.placePiece(x,y);
-    console.log(x+","+y);
     return [x,y];
   } else return this.randomlyPlace();
 }
 //harder AI Logic
 Game.prototype.smartPlace = function () {
   var placeAttempt;
-  debugger;
+  // debugger;
   //On turn 1, pick center if available. If not, pick corner.
   if (turn === 1) {
    placeAttempt = (this.placePiece(1,1));
@@ -120,9 +119,33 @@ Game.prototype.smartPlace = function () {
      placeAttempt = (this.placePiece(0,0));
      return [0,0];
    }
- } else return this.randomlyPlace();
+ } else {
+   var tryToWin = this.checkForWin();
+   if (tryToWin) {
+     this.placePiece(tryToWin[0],tryToWin[1]);
+     return tryToWin;
+   }
+ } return this.randomlyPlace();
 }
-
+//this function currently only checks for horizontal wins
+Game.prototype.checkForWin = function() {
+  for (var i = 0 ; i < 3 ; i++) {
+    var oCounter = 0;
+    var xCounter = 0;
+    var winCoordinates = [];
+    for (var j = 0 ; j < 3 ; j++){
+      if (getPieceAtSpace(i,j) === "O") oCounter++;
+      if (getPieceAtSpace(i,j) === "X") xCounter++;
+      if (!getPieceAtSpace(i,j)) {
+        winCoordinates.push(i);
+        winCoordinates.push(j);
+      }
+    }
+    if (oCounter===2 && xCounter===0) {
+      return winCoordinates;
+    }
+  } return false;
+}
 
 //UI Logic
 var drawBoard = function() {
@@ -146,7 +169,6 @@ var playGame = function() {
   drawBoard();
   $("td").click(function(){
     if (isGameActive) {
-      console.log("click");
       var xIn = parseInt(this.id[0]);
       var yIn = parseInt(this.id[1]);
       if (newGame.placePiece(xIn,yIn)) {
