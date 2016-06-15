@@ -5,6 +5,10 @@ var turn;
 var getSpace = function (x, y) {
   return  boardArray[(y*3)+x];
 };
+var getPieceAtSpace = function(x,y) {
+  return getSpace(x,y).occupiedBy;
+}
+var gameStatus = "Player X to move";
 //Constructors
 Player = function(piece) {
   this.piece = piece;
@@ -58,32 +62,34 @@ Game.prototype.isLegal = function (x, y) {
 Game.prototype.isOver = function (x, y, type) {
   //check for diagonal win conditions
   if (x === y) {
-    if ((getSpace(0,0).occupiedBy === type) && (getSpace(1,1).occupiedBy === type) && (getSpace(2,2).occupiedBy === type)) {
-      alert("Player "+type+" wins!");
+    if ((getPieceAtSpace(0,0) === type) && (getPieceAtSpace(1,1) === type) && (getPieceAtSpace(2,2) === type)) {
+      gameStatus = "Player "+type+" wins!";
       isGameActive=false;
       return true;
     }
   } else if (x + y === 2) {
-    if ((getSpace(2,0).occupiedBy === type) && (getSpace(1,1).occupiedBy === type) && (getSpace(0,2).occupiedBy === type)) {
-      alert("Player "+type+" wins!");
+    if ((getPieceAtSpace(2,0) === type) && (getPieceAtSpace(1,1) === type) && (getPieceAtSpace(0,2) === type)) {
+      gameStatus = "Player "+type+" wins!";
       isGameActive=false;
       return true;
     }
   }
   //check for horizontal/vertical win conditions
-  if (((getSpace(x,0).occupiedBy===type)&&(getSpace(x,1).occupiedBy===type)&&(getSpace(x,2).occupiedBy===type)) || ((getSpace(0,y).occupiedBy===type)&&(getSpace(1,y).occupiedBy===type)&&(getSpace(2,y).occupiedBy===type))) {
-    alert("Player "+type+" wins!");
+  if (((getPieceAtSpace(x,0)===type)&&(getPieceAtSpace(x,1)===type)&&(getPieceAtSpace(x,2)===type)) || ((getPieceAtSpace(0,y)===type)&&(getPieceAtSpace(1,y)===type)&&(getPieceAtSpace(2,y)===type))) {
+    gameStatus = "Player "+type+" wins!";
     isGameActive=false;
     return true;
   }
   //check for draw
   if (turn===8) {
-    alert("The game ended in a draw.");
+    gameStatus = "The game ended in a draw.";
     isGameActive=false;
     return true;
-  }
-  else {
+  } else {
     turn++;
+    if ((turn%2)===0) {
+      gameStatus = "Player X to move";
+    } else gameStatus = "Player O to move";
     return false;
   }
 };
@@ -101,7 +107,12 @@ var drawBoard = function() {
   }
 };
 
+var updateStatus = function() {
+  $("#game-status h4").text(gameStatus)
+};
+
 var startNewGame = function() {
+  updateStatus();
   var newGame = new Game();
   drawBoard();
   $("td").click(function(){
@@ -110,8 +121,9 @@ var startNewGame = function() {
       var xIn = parseInt(this.id[0]);
       var yIn = parseInt(this.id[1]);
       if (newGame.placePiece(xIn,yIn)) {
-        $("#"+this.id).text(getSpace(xIn,yIn).occupiedBy);
-        newGame.isOver(xIn,yIn,getSpace(xIn,yIn).occupiedBy);
+        $("#"+this.id).text(getPieceAtSpace(xIn,yIn));
+        newGame.isOver(xIn,yIn,getPieceAtSpace(xIn,yIn));
+        updateStatus();
       }
     }
   });
