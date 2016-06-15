@@ -2,7 +2,7 @@
 var boardArray = [];
 var isGameActive = false;
 var turn;
-var computerPlayer;
+var computerPlayer = "O";
 var getSpace = function (x, y) {
   return  boardArray[(y*3)+x];
 };
@@ -15,6 +15,7 @@ var checkTurn = function() {
   if (turn%2 === 0) return "X";
   else return "O";
 }
+
 //Constructors
 
 Space = function(x, y) {
@@ -49,10 +50,8 @@ Game.prototype.placePiece = function(x, y) {
     getSpace(x,y).occupiedBy = piece.type;
     return true;
   } else {
-    alert("Illegal Move");
     return false;
   }
-
 };
 
 Game.prototype.isLegal = function (x, y) {
@@ -96,6 +95,8 @@ Game.prototype.checkGameStatus = function (x, y, type) {
   }
 };
 
+
+//random 'easy' AI logic
 Game.prototype.randomlyPlace = function () {
   // debugger;
   var x = Math.floor((Math.random() * 3));
@@ -105,6 +106,21 @@ Game.prototype.randomlyPlace = function () {
     console.log(x+","+y);
     return [x,y];
   } else return this.randomlyPlace();
+}
+//harder AI Logic
+Game.prototype.smartPlace = function () {
+  var placeAttempt;
+  debugger;
+  //On turn 1, pick center if available. If not, pick corner.
+  if (turn === 1) {
+   placeAttempt = (this.placePiece(1,1));
+   if (placeAttempt) {
+     return [1,1];
+   } else {
+     placeAttempt = (this.placePiece(0,0));
+     return [0,0];
+   }
+ } else return this.randomlyPlace();
 }
 
 
@@ -121,7 +137,7 @@ var drawBoard = function() {
 };
 
 var updateStatus = function() {
-  $("#game-status h4").text(gameStatus)
+  $("#game-status h4").text(gameStatus);
 };
 
 var playGame = function() {
@@ -138,7 +154,7 @@ var playGame = function() {
         newGame.checkGameStatus(xIn,yIn,getPieceAtSpace(xIn,yIn));
         updateStatus();
         if (computerPlayer===checkTurn()) {
-          var compMove = newGame.randomlyPlace();
+          var compMove = newGame.smartPlace();
           $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
           newGame.checkGameStatus(compMove[0],compMove[1],getPieceAtSpace(compMove[0],compMove[1]));
           updateStatus();
