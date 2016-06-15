@@ -55,7 +55,20 @@ Game.prototype.isLegal = function (x, y) {
 };
 
 Game.prototype.isWon = function (x, y,type) {
-   if (((getSpace(x,0).occupiedBy===type)&&(getSpace(x,1).occupiedBy===type)&&(getSpace(x,2).occupiedBy===type)) || ((getSpace(0,y).occupiedBy===type)&&(getSpace(1,y).occupiedBy===type)&&(getSpace(2,y).occupiedBy===type))) {
+  //check for diagonal win conditions
+  if (x === y) {
+    if ((getSpace(0,0).occupiedBy === type) && (getSpace(1,1).occupiedBy === type) && (getSpace(2,2).occupiedBy === type)) {
+      alert("Player "+type+" wins!");
+      return true;
+    }
+  } else if (x + y === 2) {
+    if ((getSpace(2,0).occupiedBy === type) && (getSpace(1,1).occupiedBy === type) && (getSpace(0,2).occupiedBy === type)) {
+      alert("Player "+type+" wins!");
+      return true;
+    }
+  }
+  //check for horizontal/vertical win conditions
+  if (((getSpace(x,0).occupiedBy===type)&&(getSpace(x,1).occupiedBy===type)&&(getSpace(x,2).occupiedBy===type)) || ((getSpace(0,y).occupiedBy===type)&&(getSpace(1,y).occupiedBy===type)&&(getSpace(2,y).occupiedBy===type))) {
     alert("Player "+type+" wins!");
     return true;
   } else {
