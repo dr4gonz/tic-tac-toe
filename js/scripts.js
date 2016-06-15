@@ -23,6 +23,7 @@ Piece = function(turn) {
 }
 
 Game = function() {
+  boardArray = [];
   isGameActive = true;
   turn = 0;
   for (var iX = 0 ; iX < 3; iX++){
@@ -78,8 +79,20 @@ Game.prototype.isWon = function (x, y,type) {
   }
 };
 //UI Logic
+var drawBoard = function() {
+  $("#game-board table").remove();
+  $("#game-board").append("<table></table>");
+  for (var i = 0; i < 3; i++){
+    $("#game-board table").append("<tr id='"+i+"'></tr>");
+    for(var j = 0; j < 3; j++) {
+      $("#game-board tr#" + i).append("<td id='" + i + j + "'></td>");
+    }
+  }
+};
+
 $(document).ready(function(){
   var newGame = new Game();
+  drawBoard();
   $("td").click(function(){
     var xIn = parseInt(this.id[0]);
     var yIn = parseInt(this.id[1]);
@@ -87,6 +100,9 @@ $(document).ready(function(){
       $("#"+this.id).text(getSpace(xIn,yIn).occupiedBy);
       newGame.isWon(xIn,yIn,getSpace(xIn,yIn).occupiedBy);
     }
-
   });
+  $("#new-game").click(function() {
+    newGame = new Game();
+  });
+
 });
