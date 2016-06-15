@@ -2,7 +2,7 @@
 var boardArray = [];
 var isGameActive = false;
 var turn;
-var getSpaceIndex = function (x, y) {
+var getSpace = function (x, y) {
   return  boardArray[(y*3)+x];
 }
 //Constructors
@@ -36,10 +36,10 @@ Game = function() {
 //Game Logic
 Game.prototype.placePiece = function(x, y) {
   if (this.isLegal(x,y)) {
-    getSpaceIndex(x,y).isOccupied = true;
+    getSpace(x,y).isOccupied = true;
     var piece = new Piece(turn);
-    getSpaceIndex(x,y).occupiedBy = piece.type;
-    turn++;
+    getSpace(x,y).occupiedBy = piece.type;
+    this.isWon(x,y,piece.type);
   } else {
     alert("Illegal Move");
   }
@@ -47,10 +47,21 @@ Game.prototype.placePiece = function(x, y) {
 };
 
 Game.prototype.isLegal = function (x, y) {
-  if (getSpaceIndex(x,y).isOccupied) {
+  if (getSpace(x,y).isOccupied) {
     return false;
   } else {
     return true;
   }
-}
+};
+
+Game.prototype.isWon = function (x, y,type) {
+  debugger;
+  if (((getSpace(x,0).occupiedBy===type)&&(getSpace(x,1).occupiedBy===type)&&(getSpace(x,2).occupiedBy===type)) || ((getSpace(0,y).occupiedBy===type)&&(getSpace(1,y).occupiedBy===type)&&(getSpace(2,y).occupiedBy===type))) {
+    alert("Player "+type+" wins!");
+    return true;
+  } else {
+    turn++;
+    return false;
+  }
+};
 //UI Logic
