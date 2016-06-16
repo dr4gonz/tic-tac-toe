@@ -109,7 +109,6 @@ Game.prototype.randomlyPlace = function () {
 //harder AI Logic
 Game.prototype.smartPlace = function () {
   var placeAttempt;
-  // debugger;
   //On turn 1, pick center if available. If not, pick corner.
   if (turn === 1) {
    placeAttempt = (this.placePiece(1,1));
@@ -119,21 +118,29 @@ Game.prototype.smartPlace = function () {
      placeAttempt = (this.placePiece(0,0));
      return [0,0];
    }
- } else {
-   var tryToWin = this.checkForWin();
-   if (tryToWin) {
-     this.placePiece(tryToWin[0],tryToWin[1]);
-     return tryToWin;
-   }
- } return this.randomlyPlace();
+ }
+ var tryToWin = this.checkForWin();
+ if (tryToWin) {
+   this.placePiece(tryToWin[0],tryToWin[1]);
+   return tryToWin;
+ }
+ var tryToBlock = this.checkForBlock();
+ if (tryToBlock) {
+   this.placePiece(tryToBlock[0],tryToBlock[1]);
+   return tryToBlock;
+ }
+ return this.randomlyPlace();
 }
 //this function currently only checks for horizontal/vertical wins
 Game.prototype.checkForWin = function() {
+  var oCounter;
+  var xCounter;
+  var winCoordinates = [];
   //check for horizontal win conditions
   for (var i = 0 ; i < 3 ; i++) {
-    var oCounter = 0;
-    var xCounter = 0;
-    var winCoordinates = [];
+    oCounter = 0;
+    xCounter = 0;
+    winCoordinates = [];
     for (var j = 0 ; j < 3 ; j++){
       if (getPieceAtSpace(i,j) === "O") oCounter++;
       if (getPieceAtSpace(i,j) === "X") xCounter++;
@@ -143,15 +150,16 @@ Game.prototype.checkForWin = function() {
       }
     }
     //places piece at win coordinates
+    if (oCounter===2 && xCounter===0) {
+      return winCoordinates;
+    }
   }
-  if (oCounter===2 && xCounter===0) {
-    return winCoordinates;
-  }
+
   //check for vertical win conditions
   for (var i = 0 ; i < 3 ; i++) {
-    var oCounter = 0;
-    var xCounter = 0;
-    var winCoordinates = [];
+    oCounter = 0;
+    xCounter = 0;
+    winCoordinates = [];
     for (var j = 0 ; j < 3 ; j++){
       if (getPieceAtSpace(j,i) === "O") oCounter++;
       if (getPieceAtSpace(j,i) === "X") xCounter++;
@@ -165,11 +173,12 @@ Game.prototype.checkForWin = function() {
       return winCoordinates;
     }
   }
+
   //checks for right-to-left diagonal win condition
-  debugger;
-  var oCounter = 0;
-  var xCounter = 0;
-  var winCoordinates = [];
+
+  oCounter = 0;
+  xCounter = 0;
+  winCoordinates = [];
   for (var i = 2 ; i >= 0; i--) {
     for (var j = 0 ; j < 3 ; j++) {
       if (i + j === 2) {
@@ -186,6 +195,7 @@ Game.prototype.checkForWin = function() {
       return winCoordinates;
     }
   }
+
   //checks for left-to-right diagonal win condition
   oCounter = 0;
   xCounter = 0;
@@ -204,6 +214,90 @@ Game.prototype.checkForWin = function() {
 
   return false;
 }
+//this function will check for a possible X win and block it
+Game.prototype.checkForBlock = function () {
+  var oCounter;
+  var xCounter;
+  var blockCoordinates;
+  //check for x horizontal win conditions
+  for (var i = 0 ; i < 3 ; i++) {
+    oCounter = 0;
+    xCounter = 0;
+    blockCoordinates = [];
+    for (var j = 0 ; j < 3 ; j++){
+      if (getPieceAtSpace(i,j) === "O") oCounter++;
+      if (getPieceAtSpace(i,j) === "X") xCounter++;
+      if (!getPieceAtSpace(i,j)) {
+        blockCoordinates.push(i);
+        blockCoordinates.push(j);
+      }
+    }
+    //places piece at blocking coordinates
+    if (oCounter===0 && xCounter===2) {
+      return blockCoordinates;
+    }
+  }
+
+  //check for X vertical win conditions
+  for (var i = 0 ; i < 3 ; i++) {
+    oCounter = 0;
+    xCounter = 0;
+    blockCoordinates = [];
+    for (var j = 0 ; j < 3 ; j++){
+      if (getPieceAtSpace(j,i) === "O") oCounter++;
+      if (getPieceAtSpace(j,i) === "X") xCounter++;
+      if (!getPieceAtSpace(j,i)) {
+        blockCoordinates.push(j);
+        blockCoordinates.push(i);
+      }
+    }
+    //places piece at blocking coordinates
+    if (oCounter===0 && xCounter===2) {
+      return blockCoordinates;
+    }
+  }
+
+  // //checks for right-to-left diagonal X win condition
+  debugger;
+  oCounter = 0;
+  xCounter = 0;
+  blockCoordinates = [];
+  for (var i = 2 ; i >= 0; i--) {
+    for (var j = 0 ; j < 3 ; j++) {
+      if (i + j === 2) {
+        if (getPieceAtSpace(i,j) === "O") oCounter++;
+        if (getPieceAtSpace(i,j) === "X") xCounter++;
+        if (!getPieceAtSpace(i,j)) {
+          blockCoordinates.push(i);
+          blockCoordinates.push(j);
+        }
+      }
+    }
+    //places piece at blocking coordinates
+    if (oCounter===0 && xCounter===2) {
+      return blockCoordinates;
+    }
+  }
+
+  //checks for left-to-right diagonal X win condition
+  oCounter = 0;
+  xCounter = 0;
+  for (var i = 0; i < 3; i++) {
+    if (getPieceAtSpace(i,i) === "O") oCounter++;
+    if (getPieceAtSpace(i,i) === "X") xCounter++;
+    if (!getPieceAtSpace(i,i)) {
+      blockCoordinates = [];
+      blockCoordinates.push(i);
+      blockCoordinates.push(i);
+    }
+  }
+  if (oCounter===0 && xCounter===2) {
+    return blockCoordinates;
+  }
+
+  return false;
+}
+
 
 //UI Logic
 var drawBoard = function() {
@@ -259,3 +353,7 @@ $(document).ready(function(){
   });
 
 });
+
+var addMarker = function(x,y) {
+  $("#"+x+y).append("!");
+}
