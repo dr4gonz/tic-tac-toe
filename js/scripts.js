@@ -168,6 +168,7 @@ var drawBoard = function() {
       $("#game-board tr#" + i).append("<td id='" + i + j + "'></td>");
     }
   }
+  $("#game-board table").fadeIn("slow");
 };
 
 var updateStatus = function() {

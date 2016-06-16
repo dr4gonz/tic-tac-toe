@@ -1,9 +1,18 @@
+body {
+  color: #247BA0;
+  background-color: #B2DBBF;
+}
+table {
+  display: none;
+}
 td {
-  border: solid black 1px;
+  border: #B2DBBF solid 3px;
   width: 150px;
   height: 150px;
   text-align:center;
-  font-size: 5em;
+  font-size: 7em;
+  background-color: #fff;
+  color: #70C1B3;
 }
 
 #game-board table {
@@ -17,5 +26,19 @@ td {
 }
 
 .red-square {
-  color: red;
+  color: #FF1654;
+}
+
+.btn-danger {
+  background-color: rgba(255, 22, 84, .9);
+  border: solid 1px rgba(255, 22, 84, .5);
+}
+
+.btn-danger:hover {
+  background-color: rgba(243, 255, 189, .35);
+  color: #FF1654;
+}
+
+#game-status h4 {
+  font-size: 2em;
 }
