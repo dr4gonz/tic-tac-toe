@@ -1,23 +1,7 @@
 //Global Variables
-var boardArray = [];
-var topRow, midRow, botRow, leftCol, midCol, rightCol, leftDiag, rightDiag;
-var allArray;
-var isGameActive = false;
-var turn;
 var computerPlayer;
 var ai;
 
-var getSpace = function (x, y) {
-  return  boardArray[(x*3)+y];
-};
-var getPieceAtSpace = function(x,y) {
-  return getSpace(x,y).occupiedBy;
-};
-
-var checkTurn = function() {
-  if (turn%2 === 0) return "X";
-  else return "O";
-};
 //Constructors
 Space = function(x, y) {
   this.x = x;
@@ -28,71 +12,80 @@ Space = function(x, y) {
 
 Game = function() {
   this.gameStatus = "Player X to move.";
-  boardArray = [];
-  isGameActive = true;
-  turn = 0;
+  this.boardArray = [];
+  this.isGameActive = true;
+  this.turn = 0;
   for (var iX = 0 ; iX < 3; iX++) {
     for (var iY = 0 ; iY < 3; iY++) {
       var gameSpace = new Space(iX,iY);
-      boardArray.push(gameSpace);
+      this.boardArray.push(gameSpace);
     }
   }
-  topRow = [boardArray[0], boardArray[1], boardArray[2]];
-  midRow = [boardArray[3], boardArray[4], boardArray[5]];
-  botRow = [boardArray[6], boardArray[7], boardArray[8]];
-  leftCol = [boardArray[0], boardArray[3], boardArray[6]];
-  midCol = [boardArray[1], boardArray[4], boardArray[7]];
-  rightCol = [boardArray[2], boardArray[5], boardArray[8]];
-  rightDiag = [boardArray[2], boardArray[4], boardArray[6]];
-  leftDiag = [boardArray[0], boardArray[4], boardArray[8]];
-  allArray = [topRow, midRow, botRow, leftCol, midCol, rightCol, leftDiag, rightDiag];
+  this.topRow = [this.boardArray[0], this.boardArray[1], this.boardArray[2]];
+  this.midRow = [this.boardArray[3], this.boardArray[4], this.boardArray[5]];
+  this.botRow = [this.boardArray[6], this.boardArray[7], this.boardArray[8]];
+  this.leftCol = [this.boardArray[0], this.boardArray[3], this.boardArray[6]];
+  this.midCol = [this.boardArray[1], this.boardArray[4], this.boardArray[7]];
+  this.rightCol = [this.boardArray[2], this.boardArray[5], this.boardArray[8]];
+  this.rightDiag = [this.boardArray[2], this.boardArray[4], this.boardArray[6]];
+  this.leftDiag = [this.boardArray[0], this.boardArray[4], this.boardArray[8]];
+  this.allArray = [this.topRow, this.midRow, this.botRow, this.leftCol, this.midCol, this.rightCol, this.leftDiag, this.rightDiag];
 };
 
+Game.prototype.checkTurn = function() {
+  if (this.turn%2 === 0) return "X";
+  else return "O";
+};
+
+Game.prototype.getSpace = function (x, y) {
+  return  this.boardArray[(x*3)+y];
+};
+
+Game.prototype.getPieceAtSpace = function(x,y) {
+  return this.getSpace(x,y).occupiedBy;
+};
 //Game Logic
 Game.prototype.placePiece = function(x, y) {
   if (this.isLegal(x,y)) {
-    getSpace(x,y).isOccupied = true;
-    getSpace(x,y).occupiedBy = checkTurn();
+    this.getSpace(x,y).isOccupied = true;
+    this.getSpace(x,y).occupiedBy = this.checkTurn();
     return true;
   } else {
     return false;
   }
-
 };
 //check move legality
 Game.prototype.isLegal = function (x, y) {
-  if (getSpace(x,y).isOccupied) {
+  if (this.getSpace(x,y).isOccupied) {
     return false;
   } else {
     return true;
   }
 };
-
 Game.prototype.checkGameStatus = function () {
-  var type = checkTurn();
-  for (var i=0 ; i < allArray.length ; i++){
-    if ((allArray[i][0].occupiedBy === type ) && (allArray[i][1].occupiedBy === type ) && (allArray[i][2].occupiedBy === type )) {
+  var type = this.checkTurn();
+  for (var i=0 ; i < this.allArray.length ; i++){
+    if ((this.allArray[i][0].occupiedBy === type ) && (this.allArray[i][1].occupiedBy === type ) && (this.allArray[i][2].occupiedBy === type )) {
       this.gameStatus = "Player "+type+" wins!";
-      isGameActive=false;
-      return allArray[i];
+      this.isGameActive=false;
+      return this.allArray[i];
     }
   }
   //check for draw
-  if (turn===8) {
+  if (this.turn===8) {
     this.gameStatus = "The game ended in a draw.";
-    isGameActive=false;
+    this.isGameActive=false;
     return [];
   } else {
-    turn++;
-    this.gameStatus = "Player "+checkTurn()+" to move";
-    return false;
+    this.turn++;
+    this.gameStatus = "Player "+this.checkTurn()+" to move";
   }
 };
 //function to control 'smart' AI piece placement
 Game.prototype.smartPlace = function() {
   var placeAttempt;
   //On turn 1, pick center if available. If not, pick corner.
-  if (turn === 1) {
+  if (this.turn === 1) {
     placeAttempt = (this.placePiece(1,1));
     if (placeAttempt) {
       return [1,1];
@@ -101,17 +94,17 @@ Game.prototype.smartPlace = function() {
       return [0,0];
     }
   }
-  if (turn === 3) {
-    if (boardArray[1].occupiedBy === "X" && boardArray[5].occupiedBy === "X") {
+  if (this.turn === 3) {
+    if (this.boardArray[1].occupiedBy === "X" && this.boardArray[5].occupiedBy === "X") {
       placeAttempt = (this.placePiece(0,2));
       return [0,2];
-    } else if (boardArray[5].occupiedBy === "X" && boardArray[7].occupiedBy === "X") {
+    } else if (this.boardArray[5].occupiedBy === "X" && this.boardArray[7].occupiedBy === "X") {
       placeAttempt = (this.placePiece(2,2));
       return [2,2];
-    } else if (boardArray[7].occupiedBy === "X" && boardArray[3].occupiedBy === "X") {
+    } else if (this.boardArray[7].occupiedBy === "X" && this.boardArray[3].occupiedBy === "X") {
       placeAttempt = (this.placePiece(2,0));
       return [2,0];
-    } else if (boardArray[3].occupiedBy === "X" && boardArray[1].occupiedBy === "X") {
+    } else if (this.boardArray[3].occupiedBy === "X" && this.boardArray[1].occupiedBy === "X") {
       placeAttempt = (this.placePiece(0,0));
       return [0,0];
     }
@@ -121,7 +114,7 @@ Game.prototype.smartPlace = function() {
     this.placePiece(placeAttempt[0],placeAttempt[1]);
     return placeAttempt;
   }
-  if (!getSpace(0,2).isOccupied) {
+  if (!this.getSpace(0,2).isOccupied) {
     placeAttempt = [0,2]
     this.placePiece(placeAttempt[0],placeAttempt[1]);
     return placeAttempt;
@@ -130,14 +123,14 @@ Game.prototype.smartPlace = function() {
 };
 //checks for possible computer win
 Game.prototype.checkMove = function() {
-  for (var i=0 ; i < allArray.length ; i++){
+  for (var i=0 ; i < this.allArray.length ; i++){
     var oCounter = 0;
     var xCounter = 0;
     var emptySpace=[];
     for (var j=0 ; j < 3 ; j++) {
-      if (allArray[i][j].occupiedBy === "X") xCounter++;
-      if (allArray[i][j].occupiedBy === "O") oCounter++;
-      if (!(allArray[i][j].isOccupied)) emptySpace.push(allArray[i][j].x, allArray[i][j].y);
+      if (this.allArray[i][j].occupiedBy === "X") xCounter++;
+      if (this.allArray[i][j].occupiedBy === "O") oCounter++;
+      if (!(this.allArray[i][j].isOccupied)) emptySpace.push(this.allArray[i][j].x, this.allArray[i][j].y);
     }
     if ((oCounter === 2) && (xCounter===0)) return emptySpace;
     if ((xCounter === 2) && (oCounter===0)) return emptySpace;
@@ -166,7 +159,6 @@ var drawBoard = function() {
   $("#game-board table").fadeIn("slow");
 };
 
-
 var playGame = function() {
   var newGame = new Game();
   var updateStatus = function() {
@@ -175,31 +167,31 @@ var playGame = function() {
   updateStatus();
   drawBoard();
   $("td").click(function() {
-    if (isGameActive) {
+    if (newGame.isGameActive) {
       var xIn = parseInt(this.id[0]);
       var yIn = parseInt(this.id[1]);
       if (newGame.placePiece(xIn,yIn)) {
-        $("#"+this.id).text(getPieceAtSpace(xIn,yIn));
+        $("#"+this.id).text(newGame.getPieceAtSpace(xIn,yIn));
         newGame.checkGameStatus();
         updateStatus();
         if (ai === "easy") {
-          if (computerPlayer===checkTurn()) {
+          if (computerPlayer===newGame.checkTurn()) {
             var compMove = newGame.randomlyPlace();
-            $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
+            $("#"+compMove[0]+compMove[1]).text(newGame.getPieceAtSpace(compMove[0],compMove[1]));
             newGame.checkGameStatus();
             updateStatus();
           }
         } else if (ai === "hard") {
-          if (computerPlayer===checkTurn()) {
+          if (computerPlayer===newGame.checkTurn()) {
             var compMove = newGame.smartPlace();
-            $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
+            $("#"+compMove[0]+compMove[1]).text(newGame.getPieceAtSpace(compMove[0],compMove[1]));
             newGame.checkGameStatus();
             updateStatus();
           }
         }
       }
     }
-    if (!isGameActive) {
+    if (!newGame.isGameActive) {
       newGame.checkGameStatus().forEach(function(redSquare){
         $("#"+redSquare.x + redSquare.y).addClass("red-square");
       });
