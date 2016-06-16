@@ -104,16 +104,22 @@ Game.prototype.smartPlace = function() {
       return [0,0];
     }
   }
-  var placeAttempt = this.checkForWin();
+  var placeAttempt = this.checkMove();
   if (placeAttempt) {
     // debugger;
     this.placePiece(placeAttempt[0],placeAttempt[1]);
     return placeAttempt;
   }
+  // var placeAttempt = this.checkForBlock();
+  // if (placeAttempt) {
+  //   // debugger;
+  //   this.placePiece(placeAttempt[0],placeAttempt[1]);
+  //   return placeAttempt;
+  // }
   return this.randomlyPlace();
 };
-
-Game.prototype.checkForWin = function() {
+//checks for possible computer win
+Game.prototype.checkMove = function() {
   for (var i=0 ; i < allArray.length ; i++){
     // debugger;
     var oCounter = 0;
@@ -125,6 +131,7 @@ Game.prototype.checkForWin = function() {
       if (!(allArray[i][j].isOccupied)) emptySpace.push(allArray[i][j].x, allArray[i][j].y);
     }
     if ((oCounter === 2) && (xCounter===0)) return emptySpace;
+    if ((xCounter === 2) && (oCounter===0)) return emptySpace;
   }
 };
 
