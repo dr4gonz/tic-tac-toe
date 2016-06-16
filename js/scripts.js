@@ -1,5 +1,7 @@
 //Global Variables
 var boardArray = [];
+var topRow, midRow, botRow, leftCol, midCol, rightCol, leftDiag, rightDiag;
+var allArray;
 var isGameActive = false;
 var turn;
 var computerPlayer;
@@ -32,15 +34,23 @@ Game = function() {
   boardArray = [];
   isGameActive = true;
   turn = 0;
-  // this.xHuman = true;
-  // this.oHuman = true;
   for (var iX = 0 ; iX < 3; iX++){
     for (var iY = 0 ; iY < 3; iY++){
       var gameSpace = new Space(iX,iY);
       boardArray.push(gameSpace);
     }
   }
+  topRow = [boardArray[0], boardArray[1], boardArray[2]];
+  midRow = [boardArray[3], boardArray[4], boardArray[5]];
+  botRow = [boardArray[6], boardArray[7], boardArray[8]];
+  leftCol = [boardArray[0], boardArray[3], boardArray[6]];
+  midCol = [boardArray[1], boardArray[4], boardArray[7]];
+  rightCol = [boardArray[2], boardArray[5], boardArray[8]];
+  rightDiag = [boardArray[2], boardArray[4], boardArray[6]];
+  leftDiag = [boardArray[0], boardArray[4], boardArray[8]];
+  allArray = [topRow, midRow, botRow, leftCol, midCol, rightCol, leftDiag, rightDiag];
 };
+
 //Game Logic
 Game.prototype.placePiece = function(x, y) {
   if (this.isLegal(x,y)) {
@@ -63,26 +73,13 @@ Game.prototype.isLegal = function (x, y) {
   }
 };
 
-Game.prototype.checkGameStatus = function (x, y, type) {
-  //check for diagonal win conditions
-  if (x === y) {
-    if ((getPieceAtSpace(0,0) === type) && (getPieceAtSpace(1,1) === type) && (getPieceAtSpace(2,2) === type)) {
+Game.prototype.checkGameStatus = function (type) {
+  for (i=0 ; i < allArray.length ; i++){
+    if ((allArray[i][0].occupiedBy === type ) && (allArray[i][1].occupiedBy === type ) && (allArray[i][2].occupiedBy === type )) {
       gameStatus = "Player "+type+" wins!";
       isGameActive=false;
       return true;
     }
-  } else if (x + y === 2) {
-    if ((getPieceAtSpace(2,0) === type) && (getPieceAtSpace(1,1) === type) && (getPieceAtSpace(0,2) === type)) {
-      gameStatus = "Player "+type+" wins!";
-      isGameActive=false;
-      return true;
-    }
-  }
-  //check for horizontal/vertical win conditions
-  if (((getPieceAtSpace(x,0)===type)&&(getPieceAtSpace(x,1)===type)&&(getPieceAtSpace(x,2)===type)) || ((getPieceAtSpace(0,y)===type)&&(getPieceAtSpace(1,y)===type)&&(getPieceAtSpace(2,y)===type))) {
-    gameStatus = "Player "+type+" wins!";
-    isGameActive=false;
-    return true;
   }
   //check for draw
   if (turn===8) {
@@ -105,8 +102,7 @@ Game.prototype.randomlyPlace = function () {
     console.log(x+","+y);
     return [x,y];
   } else return this.randomlyPlace();
-}
-
+};
 
 //UI Logic
 var drawBoard = function() {
@@ -135,12 +131,12 @@ var playGame = function() {
       var yIn = parseInt(this.id[1]);
       if (newGame.placePiece(xIn,yIn)) {
         $("#"+this.id).text(getPieceAtSpace(xIn,yIn));
-        newGame.checkGameStatus(xIn,yIn,getPieceAtSpace(xIn,yIn));
+        newGame.checkGameStatus(getPieceAtSpace(xIn,yIn));
         updateStatus();
         if (computerPlayer===checkTurn()) {
           var compMove = newGame.randomlyPlace();
           $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
-          newGame.checkGameStatus(compMove[0],compMove[1],getPieceAtSpace(compMove[0],compMove[1]));
+          newGame.checkGameStatus(getPieceAtSpace(compMove[0],compMove[1]));
           updateStatus();
         }
       }
