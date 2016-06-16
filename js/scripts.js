@@ -4,22 +4,22 @@ var topRow, midRow, botRow, leftCol, midCol, rightCol, leftDiag, rightDiag;
 var allArray;
 var isGameActive = false;
 var turn;
-var computerPlayer="O";
+var computerPlayer;
 var ai;
+var gameStatus;
+
 var getSpace = function (x, y) {
   return  boardArray[(x*3)+y];
 };
 var getPieceAtSpace = function(x,y) {
   return getSpace(x,y).occupiedBy;
 };
-var gameStatus = "Player X to move";
 
 var checkTurn = function() {
   if (turn%2 === 0) return "X";
   else return "O";
 };
 //Constructors
-
 Space = function(x, y) {
   this.x = x;
   this.y = y;
