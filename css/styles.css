@@ -42,3 +42,9 @@ td {
 #game-status h4 {
   font-size: 2em;
 }
+
+@media only screen and (max-device-width: 480px) {
+  div#wrapper {
+    width: 400px;
+  }
+	}
