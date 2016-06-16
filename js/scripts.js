@@ -73,19 +73,20 @@ Game.prototype.isLegal = function (x, y) {
   }
 };
 
-Game.prototype.checkGameStatus = function (type) {
+Game.prototype.checkGameStatus = function () {
+  var type = checkTurn();
   for (var i=0 ; i < allArray.length ; i++){
     if ((allArray[i][0].occupiedBy === type ) && (allArray[i][1].occupiedBy === type ) && (allArray[i][2].occupiedBy === type )) {
       gameStatus = "Player "+type+" wins!";
       isGameActive=false;
-      return true;
+      return allArray[i];
     }
   }
   //check for draw
   if (turn===8) {
     gameStatus = "The game ended in a draw.";
     isGameActive=false;
-    return true;
+    return [];
   } else {
     turn++;
     gameStatus = "Player "+checkTurn()+" to move";
@@ -122,6 +123,11 @@ Game.prototype.smartPlace = function() {
   }
   var placeAttempt = this.checkMove();
   if (placeAttempt) {
+    this.placePiece(placeAttempt[0],placeAttempt[1]);
+    return placeAttempt;
+  }
+  if (!getSpace(0,2).isOccupied) {
+    placeAttempt = [0,2]
     this.placePiece(placeAttempt[0],placeAttempt[1]);
     return placeAttempt;
   }
@@ -179,24 +185,29 @@ var playGame = function() {
       var yIn = parseInt(this.id[1]);
       if (newGame.placePiece(xIn,yIn)) {
         $("#"+this.id).text(getPieceAtSpace(xIn,yIn));
-        newGame.checkGameStatus(getPieceAtSpace(xIn,yIn));
+        newGame.checkGameStatus();
         updateStatus();
         if (ai === "easy") {
           if (computerPlayer===checkTurn()) {
             var compMove = newGame.randomlyPlace();
             $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
-            newGame.checkGameStatus(getPieceAtSpace(compMove[0],compMove[1]));
+            newGame.checkGameStatus();
             updateStatus();
           }
         } else if (ai === "hard") {
           if (computerPlayer===checkTurn()) {
             var compMove = newGame.smartPlace();
             $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
-            newGame.checkGameStatus(getPieceAtSpace(compMove[0],compMove[1]));
+            newGame.checkGameStatus();
             updateStatus();
           }
         }
       }
+    }
+    if (!isGameActive) {
+      newGame.checkGameStatus().forEach(function(redSquare){
+        $("#"+redSquare.x + redSquare.y).addClass("red-square");
+      });
     }
   });
 };
