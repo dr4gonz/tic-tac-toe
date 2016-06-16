@@ -6,7 +6,6 @@ var isGameActive = false;
 var turn;
 var computerPlayer;
 var ai;
-var gameStatus;
 
 var getSpace = function (x, y) {
   return  boardArray[(x*3)+y];
@@ -27,11 +26,8 @@ Space = function(x, y) {
   this.occupiedBy = "";
 };
 
-Piece = function(turn) {
-  this.type=checkTurn();
-};
-
 Game = function() {
+  this.gameStatus = "Player X to move.";
   boardArray = [];
   isGameActive = true;
   turn = 0;
@@ -56,8 +52,7 @@ Game = function() {
 Game.prototype.placePiece = function(x, y) {
   if (this.isLegal(x,y)) {
     getSpace(x,y).isOccupied = true;
-    var piece = new Piece(turn);
-    getSpace(x,y).occupiedBy = piece.type;
+    getSpace(x,y).occupiedBy = checkTurn();
     return true;
   } else {
     return false;
@@ -77,19 +72,19 @@ Game.prototype.checkGameStatus = function () {
   var type = checkTurn();
   for (var i=0 ; i < allArray.length ; i++){
     if ((allArray[i][0].occupiedBy === type ) && (allArray[i][1].occupiedBy === type ) && (allArray[i][2].occupiedBy === type )) {
-      gameStatus = "Player "+type+" wins!";
+      this.gameStatus = "Player "+type+" wins!";
       isGameActive=false;
       return allArray[i];
     }
   }
   //check for draw
   if (turn===8) {
-    gameStatus = "The game ended in a draw.";
+    this.gameStatus = "The game ended in a draw.";
     isGameActive=false;
     return [];
   } else {
     turn++;
-    gameStatus = "Player "+checkTurn()+" to move";
+    this.gameStatus = "Player "+checkTurn()+" to move";
     return false;
   }
 };
@@ -171,14 +166,13 @@ var drawBoard = function() {
   $("#game-board table").fadeIn("slow");
 };
 
-var updateStatus = function() {
-  $("#game-status h4").text(gameStatus)
-};
 
 var playGame = function() {
-  gameStatus = "Player X to move."
-  updateStatus();
   var newGame = new Game();
+  var updateStatus = function() {
+    $("#game-status h4").text(newGame.gameStatus)
+  };
+  updateStatus();
   drawBoard();
   $("td").click(function() {
     if (isGameActive) {
