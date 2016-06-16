@@ -4,9 +4,9 @@ var topRow, midRow, botRow, leftCol, midCol, rightCol, leftDiag, rightDiag;
 var allArray;
 var isGameActive = false;
 var turn;
-var computerPlayer;
+var computerPlayer="O";
 var getSpace = function (x, y) {
-  return  boardArray[(y*3)+x];
+  return  boardArray[(x*3)+y];
 };
 var getPieceAtSpace = function(x,y) {
   return getSpace(x,y).occupiedBy;
@@ -59,7 +59,6 @@ Game.prototype.placePiece = function(x, y) {
     getSpace(x,y).occupiedBy = piece.type;
     return true;
   } else {
-    alert("Illegal Move");
     return false;
   }
 
@@ -74,7 +73,7 @@ Game.prototype.isLegal = function (x, y) {
 };
 
 Game.prototype.checkGameStatus = function (type) {
-  for (i=0 ; i < allArray.length ; i++){
+  for (var i=0 ; i < allArray.length ; i++){
     if ((allArray[i][0].occupiedBy === type ) && (allArray[i][1].occupiedBy === type ) && (allArray[i][2].occupiedBy === type )) {
       gameStatus = "Player "+type+" wins!";
       isGameActive=false;
@@ -93,8 +92,43 @@ Game.prototype.checkGameStatus = function (type) {
   }
 };
 
+Game.prototype.smartPlace = function() {
+  var placeAttempt;
+  //On turn 1, pick center if available. If not, pick corner.
+  if (turn === 1) {
+    placeAttempt = (this.placePiece(1,1));
+    if (placeAttempt) {
+      return [1,1];
+    } else {
+      placeAttempt = (this.placePiece(0,0));
+      return [0,0];
+    }
+  }
+  var placeAttempt = this.checkForWin();
+  if (placeAttempt) {
+    // debugger;
+    this.placePiece(placeAttempt[0],placeAttempt[1]);
+    return placeAttempt;
+  }
+  return this.randomlyPlace();
+};
+
+Game.prototype.checkForWin = function() {
+  for (var i=0 ; i < allArray.length ; i++){
+    // debugger;
+    var oCounter = 0;
+    var xCounter = 0;
+    var emptySpace=[];
+    for (var j=0 ; j < 3 ; j++) {
+      if (allArray[i][j].occupiedBy === "X") xCounter++;
+      if (allArray[i][j].occupiedBy === "O") oCounter++;
+      if (!(allArray[i][j].isOccupied)) emptySpace.push(allArray[i][j].x, allArray[i][j].y);
+    }
+    if ((oCounter === 2) && (xCounter===0)) return emptySpace;
+  }
+};
+
 Game.prototype.randomlyPlace = function () {
-  // debugger;
   var x = Math.floor((Math.random() * 3));
   var y = Math.floor((Math.random() * 3));
   if (this.isLegal(x,y)) {
@@ -134,7 +168,7 @@ var playGame = function() {
         newGame.checkGameStatus(getPieceAtSpace(xIn,yIn));
         updateStatus();
         if (computerPlayer===checkTurn()) {
-          var compMove = newGame.randomlyPlace();
+          var compMove = newGame.smartPlace();
           $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
           newGame.checkGameStatus(getPieceAtSpace(compMove[0],compMove[1]));
           updateStatus();
