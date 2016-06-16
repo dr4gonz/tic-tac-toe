@@ -127,8 +127,9 @@ Game.prototype.smartPlace = function () {
    }
  } return this.randomlyPlace();
 }
-//this function currently only checks for horizontal wins
+//this function currently only checks for horizontal/vertical wins
 Game.prototype.checkForWin = function() {
+  //check for horizontal win conditions
   for (var i = 0 ; i < 3 ; i++) {
     var oCounter = 0;
     var xCounter = 0;
@@ -141,10 +142,67 @@ Game.prototype.checkForWin = function() {
         winCoordinates.push(j);
       }
     }
+    //places piece at win coordinates
+  }
+  if (oCounter===2 && xCounter===0) {
+    return winCoordinates;
+  }
+  //check for vertical win conditions
+  for (var i = 0 ; i < 3 ; i++) {
+    var oCounter = 0;
+    var xCounter = 0;
+    var winCoordinates = [];
+    for (var j = 0 ; j < 3 ; j++){
+      if (getPieceAtSpace(j,i) === "O") oCounter++;
+      if (getPieceAtSpace(j,i) === "X") xCounter++;
+      if (!getPieceAtSpace(j,i)) {
+        winCoordinates.push(j);
+        winCoordinates.push(i);
+      }
+    }
+    //places piece at win coordinates
     if (oCounter===2 && xCounter===0) {
       return winCoordinates;
     }
-  } return false;
+  }
+  //checks for right-to-left diagonal win condition
+  debugger;
+  var oCounter = 0;
+  var xCounter = 0;
+  var winCoordinates = [];
+  for (var i = 2 ; i >= 0; i--) {
+    for (var j = 0 ; j < 3 ; j++) {
+      if (i + j === 2) {
+        if (getPieceAtSpace(i,j) === "O") oCounter++;
+        if (getPieceAtSpace(i,j) === "X") xCounter++;
+        if (!getPieceAtSpace(i,j)) {
+          winCoordinates.push(i);
+          winCoordinates.push(j);
+        }
+      }
+    }
+    //places piece at win coordinates
+    if (oCounter===2 && xCounter===0) {
+      return winCoordinates;
+    }
+  }
+  //checks for left-to-right diagonal win condition
+  oCounter = 0;
+  xCounter = 0;
+  for (var i = 0; i < 3; i++) {
+    if (getPieceAtSpace(i,i) === "O") oCounter++;
+    if (getPieceAtSpace(i,i) === "X") xCounter++;
+    if (!getPieceAtSpace(i,i)) {
+      winCoordinates = [];
+      winCoordinates.push(i);
+      winCoordinates.push(i);
+    }
+  }
+  if (oCounter===2 && xCounter===0) {
+    return winCoordinates;
+  }
+
+  return false;
 }
 
 //UI Logic
