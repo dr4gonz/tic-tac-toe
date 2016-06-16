@@ -104,18 +104,27 @@ Game.prototype.smartPlace = function() {
       return [0,0];
     }
   }
+  if (turn === 3) {
+    if (boardArray[1].occupiedBy === "X" && boardArray[5].occupiedBy === "X") {
+      placeAttempt = (this.placePiece(0,2));
+      return [0,2];
+    } else if (boardArray[5].occupiedBy === "X" && boardArray[7].occupiedBy === "X") {
+      placeAttempt = (this.placePiece(2,2));
+      return [2,2];
+    } else if (boardArray[7].occupiedBy === "X" && boardArray[3].occupiedBy === "X") {
+      placeAttempt = (this.placePiece(2,0));
+      return [2,0];
+    } else if (boardArray[3].occupiedBy === "X" && boardArray[1].occupiedBy === "X") {
+      placeAttempt = (this.placePiece(0,0));
+      return [0,0];
+    }
+  }
   var placeAttempt = this.checkMove();
   if (placeAttempt) {
     // debugger;
     this.placePiece(placeAttempt[0],placeAttempt[1]);
     return placeAttempt;
   }
-  // var placeAttempt = this.checkForBlock();
-  // if (placeAttempt) {
-  //   // debugger;
-  //   this.placePiece(placeAttempt[0],placeAttempt[1]);
-  //   return placeAttempt;
-  // }
   return this.randomlyPlace();
 };
 //checks for possible computer win
