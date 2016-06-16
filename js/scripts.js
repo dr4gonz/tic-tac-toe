@@ -5,18 +5,19 @@ var allArray;
 var isGameActive = false;
 var turn;
 var computerPlayer="O";
+var ai;
 var getSpace = function (x, y) {
   return  boardArray[(x*3)+y];
 };
 var getPieceAtSpace = function(x,y) {
   return getSpace(x,y).occupiedBy;
-}
+};
 var gameStatus = "Player X to move";
 
 var checkTurn = function() {
   if (turn%2 === 0) return "X";
   else return "O";
-}
+};
 //Constructors
 
 Space = function(x, y) {
@@ -34,8 +35,8 @@ Game = function() {
   boardArray = [];
   isGameActive = true;
   turn = 0;
-  for (var iX = 0 ; iX < 3; iX++){
-    for (var iY = 0 ; iY < 3; iY++){
+  for (var iX = 0 ; iX < 3; iX++) {
+    for (var iY = 0 ; iY < 3; iY++) {
       var gameSpace = new Space(iX,iY);
       boardArray.push(gameSpace);
     }
@@ -63,7 +64,7 @@ Game.prototype.placePiece = function(x, y) {
   }
 
 };
-
+//check move legality
 Game.prototype.isLegal = function (x, y) {
   if (getSpace(x,y).isOccupied) {
     return false;
@@ -91,7 +92,7 @@ Game.prototype.checkGameStatus = function (type) {
     return false;
   }
 };
-
+//function to control 'smart' AI piece placement
 Game.prototype.smartPlace = function() {
   var placeAttempt;
   //On turn 1, pick center if available. If not, pick corner.
@@ -121,7 +122,6 @@ Game.prototype.smartPlace = function() {
   }
   var placeAttempt = this.checkMove();
   if (placeAttempt) {
-    // debugger;
     this.placePiece(placeAttempt[0],placeAttempt[1]);
     return placeAttempt;
   }
@@ -130,7 +130,6 @@ Game.prototype.smartPlace = function() {
 //checks for possible computer win
 Game.prototype.checkMove = function() {
   for (var i=0 ; i < allArray.length ; i++){
-    // debugger;
     var oCounter = 0;
     var xCounter = 0;
     var emptySpace=[];
@@ -143,13 +142,12 @@ Game.prototype.checkMove = function() {
     if ((xCounter === 2) && (oCounter===0)) return emptySpace;
   }
 };
-
+//'easy' game AI
 Game.prototype.randomlyPlace = function () {
   var x = Math.floor((Math.random() * 3));
   var y = Math.floor((Math.random() * 3));
   if (this.isLegal(x,y)) {
     this.placePiece(x,y);
-    console.log(x+","+y);
     return [x,y];
   } else return this.randomlyPlace();
 };
@@ -171,41 +169,53 @@ var updateStatus = function() {
 };
 
 var playGame = function() {
+  gameStatus = "Player X to move."
   updateStatus();
   var newGame = new Game();
   drawBoard();
-  $("td").click(function(){
+  $("td").click(function() {
     if (isGameActive) {
-      console.log("click");
       var xIn = parseInt(this.id[0]);
       var yIn = parseInt(this.id[1]);
       if (newGame.placePiece(xIn,yIn)) {
         $("#"+this.id).text(getPieceAtSpace(xIn,yIn));
         newGame.checkGameStatus(getPieceAtSpace(xIn,yIn));
         updateStatus();
-        if (computerPlayer===checkTurn()) {
-          var compMove = newGame.smartPlace();
-          $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
-          newGame.checkGameStatus(getPieceAtSpace(compMove[0],compMove[1]));
-          updateStatus();
+        if (ai === "easy") {
+          if (computerPlayer===checkTurn()) {
+            var compMove = newGame.randomlyPlace();
+            $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
+            newGame.checkGameStatus(getPieceAtSpace(compMove[0],compMove[1]));
+            updateStatus();
+          }
+        } else if (ai === "hard") {
+          if (computerPlayer===checkTurn()) {
+            var compMove = newGame.smartPlace();
+            $("#"+compMove[0]+compMove[1]).text(getPieceAtSpace(compMove[0],compMove[1]));
+            newGame.checkGameStatus(getPieceAtSpace(compMove[0],compMove[1]));
+            updateStatus();
+          }
         }
       }
     }
   });
 };
 
-$(document).ready(function(){
+$(document).ready(function() {
   playGame();
-
   $("#new-game").click(function() {
-    var opponent = $("#choose-opponent").val();
-    if (opponent === "Computer") {
-      computerPlayer = "O";
-    } else {
-      computerPlayer = undefined;
-    }
+    ai = "off";
+    computerPlayer = "";
     playGame();
-
   });
-
+  $("#easy-game").click(function() {
+    ai = "easy";
+    computerPlayer = "O";
+    playGame();
+  });
+  $("#hard-game").click(function() {
+    ai = "hard";
+    computerPlayer = "O";
+    playGame();
+  });
 });
